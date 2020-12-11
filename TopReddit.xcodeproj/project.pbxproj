@@ -13,6 +13,8 @@
 		434EFEB3258367430084E705 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 434EFEB1258367430084E705 /* Main.storyboard */; };
 		434EFEB5258367440084E705 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 434EFEB4258367440084E705 /* Assets.xcassets */; };
 		434EFEB8258367440084E705 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 434EFEB6258367440084E705 /* LaunchScreen.storyboard */; };
+		434EFEC225836EC40084E705 /* Top.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EFEC125836EC40084E705 /* Top.swift */; };
+		434EFEC725836FE20084E705 /* RedditAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434EFEC625836FE20084E705 /* RedditAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		434EFEB4258367440084E705 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		434EFEB7258367440084E705 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		434EFEB9258367440084E705 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		434EFEC125836EC40084E705 /* Top.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Top.swift; sourceTree = "<group>"; };
+		434EFEC625836FE20084E705 /* RedditAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedditAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +60,8 @@
 		434EFEAA258367430084E705 /* TopReddit */ = {
 			isa = PBXGroup;
 			children = (
+				434EFEC525836FD20084E705 /* APIs */,
+				434EFEC025836E5E0084E705 /* Models */,
 				434EFEAB258367430084E705 /* AppDelegate.swift */,
 				434EFEAD258367430084E705 /* SceneDelegate.swift */,
 				434EFEAF258367430084E705 /* ViewController.swift */,
@@ -65,6 +71,22 @@
 				434EFEB9258367440084E705 /* Info.plist */,
 			);
 			path = TopReddit;
+			sourceTree = "<group>";
+		};
+		434EFEC025836E5E0084E705 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				434EFEC125836EC40084E705 /* Top.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		434EFEC525836FD20084E705 /* APIs */ = {
+			isa = PBXGroup;
+			children = (
+				434EFEC625836FE20084E705 /* RedditAPI.swift */,
+			);
+			path = APIs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +161,8 @@
 			files = (
 				434EFEB0258367430084E705 /* ViewController.swift in Sources */,
 				434EFEAC258367430084E705 /* AppDelegate.swift in Sources */,
+				434EFEC225836EC40084E705 /* Top.swift in Sources */,
+				434EFEC725836FE20084E705 /* RedditAPI.swift in Sources */,
 				434EFEAE258367430084E705 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

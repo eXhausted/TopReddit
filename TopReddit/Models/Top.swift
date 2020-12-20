@@ -16,39 +16,39 @@ struct TopData: Codable {
 }
 
 // MARK: - Post
-struct Post: Codable {
+struct Post: Codable, Hashable {
     let kind: String
     let data: PostData
 }
 
 // MARK: - PostData
-struct PostData: Codable {
+struct PostData: Codable, Hashable {
     let name: String
     let title: String
-    let subreddit_name_prefixed: String
+    let author: String
     let num_comments: Int
     let created: Int
     let preview: Preview?
 }
 
 // MARK: - Preview
-struct Preview: Codable {
+struct Preview: Codable, Hashable {
     let images: [Image]
     let enabled: Bool
 }
 
 // MARK: - Image
-struct Image: Codable {
+struct Image: Codable, Hashable {
     let source: ResizedImage
     let resolutions: [ResizedImage]
     let id: String
 }
 
 // MARK: - ResizedImage
-struct ResizedImage: Codable {
-    private let url: URL
+struct ResizedImage: Codable, Hashable {
+    let url: URL
     let width, height: Int
     let format: String?
     
-    var cleanURL: URL { URL(string: url.absoluteString.replacingOccurrences(of: "amp;s", with: "s"))! }
+    var size: Int { width * height } 
 }

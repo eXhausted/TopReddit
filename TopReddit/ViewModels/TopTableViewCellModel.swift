@@ -44,7 +44,7 @@ class TopTableViewCellModel {
         self.resizedImage = resolutions?.last
         
         title = post.data.title
-        author = post.data.subreddit_name_prefixed
+        author = post.data.author
         numberOfComments = String(post.data.num_comments)
         
         resizedImage

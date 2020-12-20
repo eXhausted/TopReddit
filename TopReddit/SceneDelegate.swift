@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  TopReddit
-//
-//  Created by Bogdan Geleta on 11.12.2020.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {

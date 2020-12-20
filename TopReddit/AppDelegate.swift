@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  TopReddit
-//
-//  Created by Bogdan Geleta on 11.12.2020.
-//
-
 import UIKit
 
 @main

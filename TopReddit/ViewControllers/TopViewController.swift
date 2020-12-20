@@ -34,9 +34,17 @@ class TopViewController: UIViewController {
                 snapshot.appendSections([0])
                 snapshot.appendItems(models, toSection: 0)
                 self?.dataSoruce?.apply(snapshot)
-                
             }
             .store(in: &subscriptions)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard
+            let model = sender as? Post,
+            let viewController = segue.destination as? ImageViewController,
+            let imageData = model.data.preview?.images.first?.source else { return }
+        
+        viewController.viewModel = .init(imageData: imageData, imageService: viewModel.imageService)
     }
 }
 
@@ -50,5 +58,11 @@ extension TopViewController: UITableViewDelegate {
         if indexPath.row == viewModel.models.count - viewModel.limit {
             viewModel.nextPage()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let model = dataSoruce?.itemIdentifier(for: indexPath) else { return }
+        performSegue(withIdentifier: "ImageViewControllerSegue", sender: model)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }

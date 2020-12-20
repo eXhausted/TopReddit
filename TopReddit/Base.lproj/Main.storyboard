@@ -101,13 +101,59 @@
                             <constraint firstItem="jYY-Bh-Cb5" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="ZBp-wZ-cVJ"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="Nsa-De-K61"/>
                     <connections>
                         <outlet property="tableView" destination="jYY-Bh-Cb5" id="cvj-ej-jEl"/>
+                        <segue destination="VCU-KK-dpz" kind="presentation" identifier="ImageViewControllerSegue" id="Rjf-JO-PkZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-51" y="58"/>
+            <point key="canvasLocation" x="857.97101449275374" y="57.589285714285708"/>
+        </scene>
+        <!--Image View Controller-->
+        <scene sceneID="2sc-A9-Vr3">
+            <objects>
+                <viewController id="VCU-KK-dpz" customClass="ImageViewController" customModule="TopReddit" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LUC-lF-VvX">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qM6-So-u5v">
+                                <rect key="frame" x="0.0" y="759" width="414" height="49"/>
+                                <items>
+                                    <barButtonItem systemItem="action" id="nXx-28-KZV">
+                                        <connections>
+                                            <action selector="shareButtonActionWithSender:" destination="VCU-KK-dpz" id="JTA-uu-v5b"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="QC2-qi-SQt">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="759"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="hwk-FM-2lV"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="QC2-qi-SQt" firstAttribute="top" secondItem="hwk-FM-2lV" secondAttribute="top" id="95Q-C7-dAm"/>
+                            <constraint firstItem="hwk-FM-2lV" firstAttribute="trailing" secondItem="QC2-qi-SQt" secondAttribute="trailing" id="Gzr-2S-ryh"/>
+                            <constraint firstItem="QC2-qi-SQt" firstAttribute="leading" secondItem="hwk-FM-2lV" secondAttribute="leading" id="Vfd-V6-oI0"/>
+                            <constraint firstItem="qM6-So-u5v" firstAttribute="top" secondItem="QC2-qi-SQt" secondAttribute="bottom" id="cKN-u0-U1V"/>
+                            <constraint firstItem="qM6-So-u5v" firstAttribute="leading" secondItem="hwk-FM-2lV" secondAttribute="leading" id="hto-lp-N9a"/>
+                            <constraint firstItem="qM6-So-u5v" firstAttribute="leading" secondItem="hwk-FM-2lV" secondAttribute="leading" id="n84-rR-6NE"/>
+                            <constraint firstItem="hwk-FM-2lV" firstAttribute="bottom" secondItem="qM6-So-u5v" secondAttribute="bottom" id="qd2-UI-Ed0"/>
+                            <constraint firstItem="qM6-So-u5v" firstAttribute="trailing" secondItem="hwk-FM-2lV" secondAttribute="trailing" id="ro0-3m-EPg"/>
+                            <constraint firstAttribute="trailing" secondItem="qM6-So-u5v" secondAttribute="trailing" id="zXL-cQ-LtT"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="QC2-qi-SQt" id="h2a-yC-GFB"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jId-ZH-xEu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1765" y="58"/>
         </scene>
     </scenes>
     <resources>

@@ -6,6 +6,7 @@ class TopTableViewCellModel {
     
     private let post: Post
     private let imageService: ImageService
+    let sourceImage: ResizedImage?
     private let resizedImage: ResizedImage?
     private let scale: CGFloat
     
@@ -32,16 +33,19 @@ class TopTableViewCellModel {
         self.post = model
         self.imageService = imageService
         let scale = CGFloat(1/*UIScreen.main.scale*/)
-        let resolutions = post
+        let image = post
             .data
             .preview?
             .images
-            .first?
+            .first
+        
+        let resolutions = image?
             .resolutions
             .filter{ CGFloat($0.width) < (UIScreen.main.bounds.width - 16) / scale }
             .sorted(by: { $0.size < $1.size })
         
         self.scale = scale
+        self.sourceImage = image?.source
         self.resizedImage = resolutions?.last
         
         title = post.data.title

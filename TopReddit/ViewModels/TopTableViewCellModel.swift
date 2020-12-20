@@ -9,12 +9,13 @@ class TopTableViewCellModel {
     private let resizedImage: ResizedImage?
     private let scale: CGFloat
     
-    private var subscriptions: Set<AnyCancellable> = .init()
+    private var imageSubscription: AnyCancellable?
     
     @Published var title: String? = ""
     @Published var author: String? = ""
     @Published var numberOfComments: String? = ""
     @Published var image: UIImage?
+    var id: String { post.data.name }
     
     var imageSize: CGSize {
         guard let resizedImage = resizedImage else {
@@ -47,16 +48,11 @@ class TopTableViewCellModel {
         author = post.data.author
         numberOfComments = String(post.data.num_comments)
         
-        resizedImage
+        imageSubscription = resizedImage
             .map(\.url)
             .map(imageService.loadImage(url:))?
-            .sink(receiveValue: { [weak self] (image) in
-                self?.image = image
-            })
-            .store(in: &subscriptions)
+            .assign(to: \.image, on: self)
     }
-    
-    
 }
 
 extension TopTableViewCellModel: Hashable {

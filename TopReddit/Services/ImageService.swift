@@ -33,6 +33,7 @@ class ImageService {
                     return image
                 }
                 .replaceError(with: nil)
+                .share()
                 .eraseToAnyPublisher()
         }
         

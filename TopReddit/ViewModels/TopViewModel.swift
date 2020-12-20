@@ -3,24 +3,35 @@ import Combine
 
 class TopViewModel {
     private var subscriptions: Set<AnyCancellable> = .init()
-    private let imageService = ImageService()
+    let imageService = ImageService()
     
-    @Published var viewModels: [TopTableViewCellModel] = .init()
+    @Published var models: [Post] = .init()
+    
+    let limit = 10
     
     init() {
         prepare()
     }
     
     private func prepare() {
+        next(limit: limit * 2)
+    }
+    
+    func nextPage() {
+        next(limit: limit, after: models.last?.data.name)
+    }
+    
+    private func next(limit: Int, after: String? = nil) {
         RedditAPI()
-            .getTop(limit: 50)
+            .getTop(after: after, limit: limit)
             .receive(on: DispatchQueue.main)
             .sink { (completion) in
                 if case .failure(let err) = completion {
                     print(err)
                 }
-            } receiveValue: { (top) in
-                self.viewModels.append(contentsOf: top.data.children.map { .init(model: $0, imageService: self.imageService) })
+            } receiveValue: { [unowned self] (top) in
+                self.models
+                    .append(contentsOf: top.data.children)
             }
             .store(in: &subscriptions)
     }

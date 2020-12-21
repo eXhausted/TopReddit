@@ -42,7 +42,7 @@ class TopTableViewCellModel {
         let resolutions = image?
             .resolutions
             .filter{ CGFloat($0.width) < (UIScreen.main.bounds.width - 16) / scale }
-            .sorted(by: { $0.size < $1.size })
+            .sorted(by: { $0.width < $1.width })
         
         self.scale = scale
         self.sourceImage = image?.source

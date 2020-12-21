@@ -19,6 +19,7 @@ struct TopData: Codable {
 struct Post: Codable, Hashable {
     let kind: String
     let data: PostData
+    var height: Double?
 }
 
 // MARK: - PostData
@@ -49,6 +50,4 @@ struct ResizedImage: Codable, Hashable {
     let url: URL
     let width, height: Int
     let format: String?
-    
-    var size: Int { width * height } 
 }

@@ -29,4 +29,34 @@ class TopRedditTests: XCTestCase {
             XCTAssertNotEqual(dataSource.items, prev)
         }
     }
+    
+    func testOrderedSet() throws {
+        enum HashableEnum: Hashable {
+            case one
+            case two
+            case some(Int)
+        }
+        
+        var set = OrderedSet<HashableEnum>()
+        
+        XCTAssertEqual(set.count, 0)
+        
+        set.append(.one)
+        XCTAssertEqual(set.count, 1)
+        
+        set.append(.one)
+        XCTAssertEqual(set.count, 1)
+        
+        set.append(.two)
+        XCTAssertEqual(set.count, 2)
+        
+        set.append(.some(1))
+        XCTAssertEqual(set.count, 3)
+
+        set.append(.some(1))
+        XCTAssertEqual(set.count, 3)
+        
+        set.append(.some(2))
+        XCTAssertEqual(set.count, 4)
+    }
 }

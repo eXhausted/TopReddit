@@ -113,6 +113,8 @@ extension TableViewDataSource: Subscriber {
                 guard let weakSelf = self else { return }
                 let count = weakSelf.items.count
                 let offset = weakSelf.tableView.contentOffset.y
+                weakSelf.tableView.isUserInteractionEnabled = false
+                weakSelf.tableView.isScrollEnabled = false
                 UIView.performWithoutAnimation {
                     weakSelf.tableView.beginUpdates()
                     weakSelf.items = patch.result
@@ -128,6 +130,8 @@ extension TableViewDataSource: Subscriber {
                         weakSelf.tableView.setContentOffset(CGPoint(x: 0, y: offset + newOffset), animated: false)
                     }
                 }
+                weakSelf.tableView.isUserInteractionEnabled = true
+                weakSelf.tableView.isScrollEnabled = true
             }
         }
         

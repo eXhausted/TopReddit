@@ -6,9 +6,9 @@ class TopTableViewCellModel {
     
     private let post: Post
     private let imageService: ImageService
-    let sourceImage: ResizedImage?
-    private let resizedImage: ResizedImage?
-    private let scale: CGFloat
+    private(set) var sourceImage: ResizedImage? = nil
+    private var resizedImage: ResizedImage? = nil
+    private let bounds = UIScreen.main.bounds
     
     private var imageSubscription: AnyCancellable?
     
@@ -23,16 +23,22 @@ class TopTableViewCellModel {
             return .zero
         }
         
+        var multiplier: CGFloat
+        if bounds.height > bounds.width {
+            multiplier = bounds.width / CGFloat(resizedImage.width)
+        } else {
+            multiplier = bounds.height / CGFloat(resizedImage.height)
+        }
+        
         return CGSize(
-            width: (CGFloat(resizedImage.width) / scale).rounded(),
-            height: (CGFloat(resizedImage.height) / scale).rounded()
+            width: (CGFloat(resizedImage.width) * multiplier).rounded(.up),
+            height: (CGFloat(resizedImage.height) * multiplier).rounded(.up)
         )
     }
     
     init(model: Post, imageService: ImageService) {
         self.post = model
         self.imageService = imageService
-        let scale = CGFloat(1/*UIScreen.main.scale*/)
         let image = post
             .data
             .preview?
@@ -41,10 +47,9 @@ class TopTableViewCellModel {
         
         let resolutions = image?
             .resolutions
-            .filter{ CGFloat($0.width) < (UIScreen.main.bounds.width - 16) / scale }
+            .filter{ CGFloat($0.width) < self.bounds.width }
             .sorted(by: { $0.width < $1.width })
         
-        self.scale = scale
         self.sourceImage = image?.source
         self.resizedImage = resolutions?.last
         

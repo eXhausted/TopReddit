@@ -22,6 +22,7 @@ public class TableViewDataSource<T: Hashable>: NSObject, UITableViewDataSource {
     let cellProvider: CellProvider
     
     public var items: [T]
+    var scrollTo: Int = NSNotFound
     
     public init(tableView: UITableView, cellProvider: @escaping CellProvider) {
         self.tableView = tableView
@@ -104,7 +105,7 @@ extension TableViewDataSource: Subscriber {
         subscription.request(.unlimited)
     }
     
-    public func receive(_ input: [T]) -> Subscribers.Demand {
+    public func receive(_ input: Input) -> Subscribers.Demand {
         
         queue.sync { [unowned self] in
             let patch = self.patch(from: input)
@@ -128,6 +129,9 @@ extension TableViewDataSource: Subscriber {
                         weakSelf.tableView.scrollToRow(at: IndexPath(row: topInsertMap.count, section: 0), at: .top, animated: false)
                         let newOffset = weakSelf.tableView.contentOffset.y
                         weakSelf.tableView.setContentOffset(CGPoint(x: 0, y: offset + newOffset), animated: false)
+                    } else if let index = self?.scrollTo, index != NSNotFound {
+                        weakSelf.tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: false)
+                        self?.scrollTo = NSNotFound
                     }
                 }
                 weakSelf.tableView.isUserInteractionEnabled = true

@@ -19,6 +19,23 @@ class TopViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        [UIApplication.willTerminateNotification, UIApplication.didEnterBackgroundNotification]
+            .publisher
+            .flatMap { NotificationCenter.default.publisher(for: $0) }
+            .sink { [unowned self] (value) in
+                let post = self.tableView
+                    .visibleCells
+                    .compactMap { $0 as? TopTableViewCell }
+                    .filter { $0.convert($0.bounds.origin, to: self.view).y > 0 }
+                    .compactMap { $0.viewModel}
+                    .map { $0.post }
+                    .first
+                
+                post.map(self.viewModel.persist(from:))
+            }
+            .store(in: &subscriptions)
+        
         dataSoruce = .init(tableView: tableView, cellProvider: { [viewModel] (tableView, indexPath, model) -> UITableViewCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TopTableViewCell
             cell.viewModel = .init(model: model, imageService: viewModel.imageService)
@@ -28,6 +45,15 @@ class TopViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        viewModel
+            .$models
+            .zip(viewModel.$scrollTo)
+            .receive(on: DispatchQueue.main)
+            .filter { !$0.0.isEmpty && $0.1 != NSNotFound }
+            .map { $0.1 }
+            .assign(to: \.scrollTo, on: dataSoruce)
+            .store(in: &subscriptions)
         
         viewModel
             .$models
@@ -48,13 +74,16 @@ class TopViewController: UIViewController {
 extension TopViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+        guard let height = viewModel.height(at: indexPath.row) else { return UITableView.automaticDimension }
+        return CGFloat(height)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        print(indexPath)
         if indexPath.row == viewModel.models.count - viewModel.limit {
             viewModel.nextPage()
         }
+        viewModel.handle(height: Double(cell.bounds.height), index: indexPath.row)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -4,7 +4,7 @@ import Combine
 
 class TopTableViewCellModel {
     
-    private let post: Post
+    let post: Post
     private let imageService: ImageService
     private(set) var sourceImage: ResizedImage? = nil
     private var resizedImage: ResizedImage? = nil

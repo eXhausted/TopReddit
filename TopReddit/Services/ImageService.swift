@@ -7,10 +7,6 @@ class ImageService {
     private var cache: NSCache<NSURL, UIImage> = .init()
     private var publishers: [URL: AnyPublisher<UIImage?, Never>] = .init()
     
-    init() {
-        prepare()
-    }
-    
     func loadImage(url: URL) -> AnyPublisher<UIImage?, Never> {
         let fileURL = self.fileURL(from: url)
         
@@ -40,31 +36,14 @@ class ImageService {
         return publishers[fileURL]!
     }
     
-    private func prepare() {
-        var isDirectory = ObjCBool(true)
-        let exists = FileManager.default.fileExists(atPath: folderPath, isDirectory: &isDirectory)
-        if !exists {
-            try! FileManager.default.createDirectory(atPath: folderPath, withIntermediateDirectories: true, attributes: nil)
-        }
-    }
-    
     private func persist(data: Data, url: URL) throws {
         try data.write(to: url)
     }
     
-    private lazy var folderURL: URL = {
+    private func fileURL(from url: URL) -> URL {
         FileManager
             .default
-            .urls(for: .libraryDirectory, in: .userDomainMask)
-            .first!
-            .appendingPathComponent("Images")
-    }()
-    
-    private lazy var folderPath: String = {
-        folderURL.path
-    }()
-    
-    private func fileURL(from url: URL) -> URL {
-        folderURL.appendingPathComponent(url.lastPathComponent)
+            .imagesFolderURL
+            .appendingPathComponent(url.lastPathComponent)
     }
 }

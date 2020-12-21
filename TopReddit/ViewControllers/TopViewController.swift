@@ -1,15 +1,14 @@
 import UIKit
 import Combine
 
-typealias DataSource = UITableViewDiffableDataSource<Int, Post>
-typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Post>
+typealias DataSource = TableViewDataSource<Post>
 
 class TopViewController: UIViewController {
     
     private var subscriptions: Set<AnyCancellable> = .init()
     
     let viewModel = TopViewModel()
-    var dataSoruce: DataSource?
+    var dataSoruce: DataSource!
     
     @IBOutlet var tableView: UITableView! {
         didSet {
@@ -25,17 +24,15 @@ class TopViewController: UIViewController {
             cell.viewModel = .init(model: model, imageService: viewModel.imageService)
             return cell
         })
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
         viewModel
             .$models
-            .sink { [weak self] (models) in
-                var snapshot = Snapshot()
-                snapshot.appendSections([0])
-                snapshot.appendItems(models, toSection: 0)
-                self?.dataSoruce?.apply(snapshot)
-            }
-            .store(in: &subscriptions)
+            .receive(on: DispatchQueue.global())
+            .receive(subscriber: dataSoruce)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -61,7 +58,7 @@ extension TopViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let model = dataSoruce?.itemIdentifier(for: indexPath) else { return }
+        guard let model = dataSoruce?.item(at: indexPath) else { return }
         performSegue(withIdentifier: "ImageViewControllerSegue", sender: model)
         tableView.deselectRow(at: indexPath, animated: true)
     }

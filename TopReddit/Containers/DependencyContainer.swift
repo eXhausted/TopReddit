@@ -1,6 +1,8 @@
 import Foundation
 
 class DependencyContainer {
+    private let formatter = RelativeDateTimeFormatter()
+    
     private let imageService = ImageService()
     private let redditService = RedditService()
     
@@ -13,7 +15,7 @@ class DependencyContainer {
     }
 
     func resolve(with model: Post) -> TopTableViewCellModel {
-        return .init(model: model, imageService: imageService)
+        return .init(model: model, imageService: imageService, formatter: formatter)
     }
     
     func resolve(with model: ResizedImage) -> ImageViewModel {

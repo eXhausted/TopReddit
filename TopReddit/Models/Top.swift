@@ -34,7 +34,7 @@ struct PostData: Codable, Hashable {
     let title: String
     let author: String
     let num_comments: Int
-    let created: Int
+    let created: Double
     let preview: Preview?
 }
 

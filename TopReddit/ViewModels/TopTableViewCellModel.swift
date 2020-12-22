@@ -11,10 +11,12 @@ class TopTableViewCellModel {
     private let bounds = UIScreen.main.bounds
     
     private var imageSubscription: AnyCancellable?
+    private let formatter: RelativeDateTimeFormatter
     
-    @Published var title: String? = ""
-    @Published var author: String? = ""
-    @Published var numberOfComments: String? = ""
+    var title: String = ""
+    var author: String = ""
+    var when: String { formatter.localizedString(for: Date(timeIntervalSince1970: post.data.created), relativeTo: .init()) }
+    var numberOfComments: String = ""
     @Published var image: UIImage?
     var id: String { post.data.name }
     
@@ -36,9 +38,11 @@ class TopTableViewCellModel {
         )
     }
     
-    init(model: Post, imageService: ImageService) {
+    init(model: Post, imageService: ImageService, formatter: RelativeDateTimeFormatter) {
         self.post = model
         self.imageService = imageService
+        self.formatter = formatter
+        
         let image = post
             .data
             .preview?
@@ -54,7 +58,7 @@ class TopTableViewCellModel {
         self.resizedImage = resolutions?.last
         
         title = post.data.title
-        author = post.data.author
+        author = post.data.author + " 🕚 " + when
         numberOfComments = String(post.data.num_comments)
         
         imageSubscription = resizedImage

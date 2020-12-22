@@ -7,7 +7,7 @@ class TopViewController: UIViewController {
     
     private var subscriptions: Set<AnyCancellable> = .init()
     
-    let viewModel = TopViewModel()
+    let viewModel = DependencyContainer.container.resolve()
     var dataSoruce: DataSource!
     
     @IBOutlet var tableView: UITableView! {
@@ -36,9 +36,9 @@ class TopViewController: UIViewController {
             }
             .store(in: &subscriptions)
         
-        dataSoruce = .init(tableView: tableView, cellProvider: { [viewModel] (tableView, indexPath, model) -> UITableViewCell? in
+        dataSoruce = .init(tableView: tableView, cellProvider: { (tableView, indexPath, model) -> UITableViewCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TopTableViewCell
-            cell.viewModel = .init(model: model, imageService: viewModel.imageService)
+            cell.viewModel = DependencyContainer.container.resolve(with: model)
             return cell
         })
     }
@@ -67,7 +67,7 @@ class TopViewController: UIViewController {
             let viewController = segue.destination as? ImageViewController,
             let imageData = model.data.preview?.images.first?.source else { return }
         
-        viewController.viewModel = .init(imageData: imageData, imageService: viewModel.imageService)
+        viewController.viewModel = DependencyContainer.container.resolve(with: imageData)
     }
 }
 
@@ -79,7 +79,6 @@ extension TopViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        print(indexPath)
         if indexPath.row == viewModel.models.count - viewModel.limit {
             viewModel.nextPage()
         }

@@ -12,33 +12,27 @@ class TopViewModel {
         case loadPage(before: String? = nil, after: String? = nil, limit: Int)
     }
     
-    struct StateRestoration: Codable {
-        let posts: [Post]
-        let heights: [String: Double]
-        let index: Int
-    }
-    
-    private var subscriptions: Set<AnyCancellable> = .init()
+    let redditService: RedditServiceProtocol
     
     @Published private var state: State
     @Published private var actions: OrderedSet<Action>
-    
-    let imageService = ImageService()
-    
     @Published var models: [Post] = .init()
     @Published var scrollTo: Int = NSNotFound
     
+    private var subscriptions: Set<AnyCancellable> = .init()
     private var heights: [String: Double] = .init()
     
     let limit = 10
+    private let queue = DispatchQueue(label: "TopViewModel")
     
-    init() {
-        state = .idle
-        actions = .init()
+    init(redditService: RedditServiceProtocol) {
+        self.state = .idle
+        self.actions = .init()
+        self.redditService = redditService
         
         $state
             .combineLatest($actions)
-            .receive(on: DispatchQueue.global())
+            .receive(on: queue)
             .filter{ $0.0 == .idle && $0.1.count > 0 }
             .sink { [weak self] (s) in
                 self?.handleNextAction()
@@ -49,45 +43,56 @@ class TopViewModel {
     }
     
     func handleNextAction() {
-        guard let action = actions.dropFirst() else { return }
+        guard let action = actions.first else { return }
         
         state = .busy
         print(action)
         
+        var publisher: AnyPublisher<[Post], Never>
+        
         switch action {
         case .initialize:
-            guard let restore = loadState() else {
-                next(limit: limit * 2)
-                return
+            if let restore = redditService.loadState() {
+                heights = restore.heights
+                scrollTo = restore.index
+                publisher = Just(restore.posts)
+                    .eraseToAnyPublisher()
+            } else {
+                publisher = next(limit: limit * 2)
             }
-            heights = restore.heights
-            models = restore.posts
-            scrollTo = restore.index
-            state = .idle
             
             
         case .loadPage(let before, let after, let limit):
-            next(before: before, after: after, limit: limit)
+            publisher = next(before: before, after: after, limit: limit)
         }
+        
+        publisher
+            .receive(on: queue)
+            .sink { [weak self] (posts) in
+                self?.models.append(contentsOf: posts)
+                self?.actions.dropFirst()
+                self?.state = .idle
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func prevPage() {
+        actions.append(.loadPage(before: models.first?.data.name, limit: limit))
     }
     
     func nextPage() {
         actions.append(.loadPage(after: models.last?.data.name, limit: limit))
     }
     
-    private func next(before: String? = nil, after: String? = nil, limit: Int) {
-        RedditAPI()
-            .getTop(after: after, limit: limit)
-            .receive(on: DispatchQueue.main)
-            .sink { (completion) in
-                if case .failure(let err) = completion {
-                    print(err)
-                }
-            } receiveValue: { [unowned self] (top) in
-                self.models.append(contentsOf: top.data.children)
-                self.state = .idle
-            }
-            .store(in: &subscriptions)
+    private func next(before: String? = nil, after: String? = nil, limit: Int) -> AnyPublisher<[Post], Never> {
+        redditService.getTop(before: before, after: after, limit: limit)
+    }
+    
+    func chaos() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            self.models.shuffle()
+            self.chaos()
+        }
     }
 }
 
@@ -108,26 +113,12 @@ extension TopViewModel {
 
 extension TopViewModel {
     
-    func loadState() -> StateRestoration? {
-        let jsonDecoder = JSONDecoder()
-        guard let data = try? Data(contentsOf: FileManager.default.stateFileURL) else { return nil }
-        return try? jsonDecoder.decode(StateRestoration.self, from: data)
-    }
-    
     func persist(from post: Post) {
-        guard var index = models.firstIndex(of: post) else { return }
-        let start = max(0, index - limit / 2)
-        let end = min(models.count, start + limit * 2)
-        let posts = models[start..<end]
-        index = posts.firstIndex(of: post)! - posts.startIndex
-        
-        let heights = zip(posts, posts.compactMap { self.heights[$0.data.name] })
-            .reduce(into: [String: Double]()) { (result, element) in
-                result[element.0.data.name] = element.1
-        }
-        
-        let json = JSONEncoder()
-        guard let data = try? json.encode(StateRestoration(posts: .init(posts), heights: heights, index: index)) else { return }
-        try! data.write(to: FileManager.default.stateFileURL)
+        redditService.persist(
+            items: models,
+            from: post,
+            heights: heights,
+            limit: limit
+        )
     }
 }

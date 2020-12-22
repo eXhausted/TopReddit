@@ -14,24 +14,6 @@ class TopTableViewCell: UITableViewCell {
             numberOfCommentsLabel?.text = viewModel.numberOfComments
             
             viewModel
-                .$title
-                .receive(on: DispatchQueue.main)
-                .assign(to: \.text, on: titleLabel)
-                .store(in: &self.subscriptions)
-            
-            viewModel
-                .$author
-                .receive(on: DispatchQueue.main)
-                .assign(to: \.text, on: authorLabel)
-                .store(in: &self.subscriptions)
-            
-            viewModel
-                .$numberOfComments
-                .receive(on: DispatchQueue.main)
-                .assign(to: \.text, on: numberOfCommentsLabel)
-                .store(in: &self.subscriptions)
-            
-            viewModel
                 .$image
                 .receive(on: DispatchQueue.main)
                 .assign(to: \.image, on: thumbnailImageView)

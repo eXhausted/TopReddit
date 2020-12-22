@@ -10,8 +10,10 @@ struct OrderedSet<E: Hashable> {
         set = .init()
     }
     
+    var first: E? { array.first }
     var count: Int { array.count }
     
+    @discardableResult
     mutating
     func dropFirst() -> E? {
         guard array.count > 0 else { return nil }

@@ -60,16 +60,7 @@ class TopTableViewCellModel {
         imageSubscription = resizedImage
             .map(\.url)
             .map(imageService.loadImage(url:))?
+            .receive(on: DispatchQueue.main)
             .assign(to: \.image, on: self)
-    }
-}
-
-extension TopTableViewCellModel: Hashable {
-    static func == (lhs: TopTableViewCellModel, rhs: TopTableViewCellModel) -> Bool {
-        lhs.post == rhs.post
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(post)
     }
 }

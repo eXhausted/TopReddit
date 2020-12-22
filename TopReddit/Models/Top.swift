@@ -18,7 +18,7 @@ struct TopData: Codable {
 // MARK: - Post
 struct Post: Codable, Hashable {
     let kind: String
-    let data: PostData
+    let data: PostData!
     var height: Double?
 }
 

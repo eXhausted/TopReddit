@@ -6,14 +6,14 @@ public class TableViewDataSource<T: Hashable>: NSObject, UITableViewDataSource {
     
     public typealias CellProvider = (UITableView, IndexPath, T) -> UITableViewCell?
     
-    public struct Changes {
+    public struct Difference {
         let insert: [Int]
         let delete: [Int]
         let move: [(from: Int, to: Int)]
     }
     
     public struct Patch {
-        public let changes: TableViewDataSource.Changes
+        public let changes: TableViewDataSource.Difference
         public let result: [T]
     }
     
@@ -94,6 +94,43 @@ extension TableViewDataSource {
             result: items
         )
     }
+    
+    private func handle(new input: [T]) {
+        queue.sync { [unowned self] in
+            let patch = self.patch(from: input)
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.updateTableView(with: patch)
+            }
+        }
+    }
+    
+    func updateTableView(with patch: TableViewDataSource.Patch) {
+        let count = items.count
+        let offset = tableView.contentOffset.y
+        tableView.isUserInteractionEnabled = false
+        tableView.isScrollEnabled = false
+        UIView.performWithoutAnimation {
+            tableView.beginUpdates()
+            items = patch.result
+            tableView.deleteRows(at: patch.changes.delete.map{ IndexPath(row: $0, section: 0) }, with: .none)
+            tableView.insertRows(at: patch.changes.insert.map{ IndexPath(row: $0, section: 0) }, with: .none)
+            tableView.reloadRows(at: patch.changes.move.map(\.to).map{ IndexPath(row: $0, section: 0) }, with: .none)
+            tableView.endUpdates()
+            
+            let topInsertMap = patch.changes.insert.filter({ $0 < count })
+            if topInsertMap.count > 0 {
+                tableView.scrollToRow(at: IndexPath(row: min(topInsertMap.count, items.count), section: 0), at: .top, animated: false)
+                let newOffset = tableView.contentOffset.y
+                tableView.setContentOffset(CGPoint(x: 0, y: offset + newOffset), animated: false)
+            } else if scrollTo != NSNotFound {
+                tableView.scrollToRow(at: IndexPath(row: scrollTo, section: 0), at: .top, animated: false)
+                scrollTo = NSNotFound
+            }
+        }
+        tableView.isUserInteractionEnabled = true
+        tableView.isScrollEnabled = true
+    }
 }
 
 extension TableViewDataSource: Subscriber {
@@ -106,39 +143,7 @@ extension TableViewDataSource: Subscriber {
     }
     
     public func receive(_ input: Input) -> Subscribers.Demand {
-        
-        queue.sync { [unowned self] in
-            let patch = self.patch(from: input)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let weakSelf = self else { return }
-                let count = weakSelf.items.count
-                let offset = weakSelf.tableView.contentOffset.y
-                weakSelf.tableView.isUserInteractionEnabled = false
-                weakSelf.tableView.isScrollEnabled = false
-                UIView.performWithoutAnimation {
-                    weakSelf.tableView.beginUpdates()
-                    weakSelf.items = patch.result
-                    weakSelf.tableView.deleteRows(at: patch.changes.delete.map{ IndexPath(row: $0, section: 0) }, with: .none)
-                    weakSelf.tableView.insertRows(at: patch.changes.insert.map{ IndexPath(row: $0, section: 0) }, with: .none)
-                    weakSelf.tableView.reloadRows(at: patch.changes.move.map(\.to).map{ IndexPath(row: $0, section: 0) }, with: .none)
-                    weakSelf.tableView.endUpdates()
-                    
-                    let topInsertMap = patch.changes.insert.filter({ $0 < count })
-                    if topInsertMap.count > 0 {
-                        weakSelf.tableView.scrollToRow(at: IndexPath(row: topInsertMap.count, section: 0), at: .top, animated: false)
-                        let newOffset = weakSelf.tableView.contentOffset.y
-                        weakSelf.tableView.setContentOffset(CGPoint(x: 0, y: offset + newOffset), animated: false)
-                    } else if let index = self?.scrollTo, index != NSNotFound {
-                        weakSelf.tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: false)
-                        self?.scrollTo = NSNotFound
-                    }
-                }
-                weakSelf.tableView.isUserInteractionEnabled = true
-                weakSelf.tableView.isScrollEnabled = true
-            }
-        }
-        
+        handle(new: input)
         return .unlimited
     }
     

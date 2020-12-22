@@ -15,22 +15,34 @@ class ImageService {
                 .eraseToAnyPublisher()
         }
         
-        if publishers[fileURL] == nil {
-            publishers[fileURL] = urlSession
-                .dataTaskPublisher(for: fileURL)
-                .tryCatch { (error: URLError) -> URLSession.DataTaskPublisher in
-                    guard error.code.rawValue == -1100 else { throw "Unexpected" }
-                    return URLSession.shared.dataTaskPublisher(for: url)
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            return Just(fileURL.path)
+                .subscribe(on: DispatchQueue.global())
+                .compactMap { UIImage(contentsOfFile: $0) }
+                .map { [weak self] image -> UIImage in
+                    self?.cache.setObject(image, forKey: fileURL as NSURL)
+                    return image
                 }
-                .tryMap { (data, response) -> UIImage in
-                    guard let image = UIImage(data: data) else { throw "Cant parse data into image" }
-                    try self.persist(data: data, url: fileURL)
-                    self.cache.setObject(image, forKey: fileURL as NSURL)
+                .eraseToAnyPublisher()
+        }
+        
+        if publishers[fileURL] == nil {
+            let publisher = urlSession
+                .dataTaskPublisher(for: url)
+                .map(\.data)
+                .map { [weak self] in
+                    try? self?.persist(data: $0, url: fileURL)
+                    return $0
+                }
+                .compactMap { UIImage(data: $0) }
+                .map { [weak self] image -> UIImage in
+                    self?.cache.setObject(image, forKey: fileURL as NSURL)
                     return image
                 }
                 .replaceError(with: nil)
                 .share()
-                .eraseToAnyPublisher()
+                
+            publishers[fileURL] = publisher.eraseToAnyPublisher()
         }
         
         return publishers[fileURL]!

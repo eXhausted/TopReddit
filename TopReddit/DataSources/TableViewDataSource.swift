@@ -116,6 +116,9 @@ extension TableViewDataSource {
             items = patch.result
             tableView.deleteRows(at: patch.changes.delete.map{ IndexPath(row: $0, section: 0) }, with: .none)
             tableView.insertRows(at: patch.changes.insert.map{ IndexPath(row: $0, section: 0) }, with: .none)
+            tableView.endUpdates()
+            
+            tableView.beginUpdates()
             tableView.reloadRows(at: patch.changes.move.map(\.to).map{ IndexPath(row: $0, section: 0) }, with: .none)
             tableView.endUpdates()
             

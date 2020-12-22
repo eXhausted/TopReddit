@@ -10,6 +10,7 @@ class TopViewModel {
     enum Action: Hashable {
         case initialize
         case loadPage(before: String? = nil, after: String? = nil, limit: Int)
+        case reload
     }
     
     let redditService: RedditServiceProtocol
@@ -63,17 +64,27 @@ class TopViewModel {
             
             
         case .loadPage(let before, let after, let limit):
-            publisher = next(before: before, after: after, limit: limit)
+            publisher = $models
+                .zip(next(before: before, after: after, limit: limit))
+                .map { $0 + $1 }
+                .eraseToAnyPublisher()
+            
+        case .reload:
+            publisher = next(limit: limit * 2)
         }
         
         publisher
             .receive(on: queue)
             .sink { [weak self] (posts) in
-                self?.models.append(contentsOf: posts)
+                self?.models = posts
                 self?.actions.dropFirst()
                 self?.state = .idle
             }
             .store(in: &subscriptions)
+    }
+    
+    func reload() {
+        actions.append(.reload)
     }
     
     func prevPage() {

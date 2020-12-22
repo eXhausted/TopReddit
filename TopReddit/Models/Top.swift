@@ -20,6 +20,12 @@ struct Post: Codable, Hashable {
     let kind: String
     let data: PostData!
     var height: Double?
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(data.name)
+    }
+    
+    static func ==(l: Post, r: Post) -> Bool { l.data.name == r.data.name }
 }
 
 // MARK: - PostData

@@ -16,10 +16,10 @@ class TopViewController: UIViewController {
             tableView.estimatedRowHeight = 300
         }
     }
+    let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         [UIApplication.willTerminateNotification, UIApplication.didEnterBackgroundNotification]
             .publisher
             .flatMap { NotificationCenter.default.publisher(for: $0) }
@@ -55,10 +55,28 @@ class TopViewController: UIViewController {
             .assign(to: \.scrollTo, on: dataSoruce)
             .store(in: &subscriptions)
         
-        viewModel
+        let publisher = viewModel
             .$models
             .receive(on: DispatchQueue.global())
+        
+        publisher
+            .combineLatest(Just(refreshControl))
+            .receive(on: DispatchQueue.main)
+            .filter{ (_, refreshControl) in refreshControl.isRefreshing }
+            .sink { (_, refreshControl) in
+                refreshControl.endRefreshing()
+            }
+            .store(in: &subscriptions)
+        
+        publisher
             .receive(subscriber: dataSoruce)
+        
+        tableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(reload), for: .valueChanged)
+    }
+    
+    @IBAction func reload(_ sender: Any) {
+        viewModel.reload()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

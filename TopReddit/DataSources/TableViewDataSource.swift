@@ -70,7 +70,6 @@ extension TableViewDataSource {
             items.insert(item, at: index)
         }
         
-        print(input.count, "==", items.count)
         assert(input.count == items.count)
         
         // Move
@@ -88,6 +87,8 @@ extension TableViewDataSource {
             }
         }
         items.sort(by: { after[$0]! < after[$1]! })
+        
+        assert(items == input)
         
         return .init(
             changes: .init(insert: insertMap.map{ $0.value }, delete: deleteMap.map { $0.value }, move: moveMap.map { $1 }),
@@ -119,7 +120,7 @@ extension TableViewDataSource {
             tableView.endUpdates()
             
             let topInsertMap = patch.changes.insert.filter({ $0 < count })
-            if topInsertMap.count > 0 {
+            if !topInsertMap.isEmpty, topInsertMap.count < items.count {
                 tableView.scrollToRow(at: IndexPath(row: min(topInsertMap.count, items.count), section: 0), at: .top, animated: false)
                 let newOffset = tableView.contentOffset.y
                 tableView.setContentOffset(CGPoint(x: 0, y: offset + newOffset), animated: false)

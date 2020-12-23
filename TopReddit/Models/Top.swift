@@ -25,7 +25,7 @@ struct Post: Codable, Hashable {
         hasher.combine(data.name)
     }
     
-    static func ==(l: Post, r: Post) -> Bool { l.data.name == r.data.name }
+    static func ==(l: Post, r: Post) -> Bool { l.data?.name == r.data?.name }
 }
 
 // MARK: - PostData

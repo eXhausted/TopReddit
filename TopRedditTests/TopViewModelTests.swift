@@ -27,9 +27,13 @@ class TopViewModelTests: XCTestCase {
         
         _ = viewModel
             .$models
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.global())
             .sink { (posts) in
-                XCTAssertEqual(posts, [post])
-                expectation.fulfill()
+                if !posts.isEmpty {
+                    XCTAssertEqual(posts, [post])
+                    expectation.fulfill()
+                }
         }
         
         wait(for: [expectation], timeout: 20)

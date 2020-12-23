@@ -10,7 +10,6 @@ class ImageViewModel {
     
     @Published var image: UIImage?
     
-    
     init(imageData: ResizedImage, imageService: ImageService) {
         self.imageData = imageData
         self.imageSerivce = imageService

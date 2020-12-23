@@ -34,7 +34,7 @@ class TopViewModel {
         $state
             .combineLatest($actions)
             .receive(on: queue)
-            .filter{ $0.0 == .idle && $0.1.count > 0 }
+            .filter{ (state, actions) in state == .idle && actions.count > 0 }
             .sink { [weak self] (s) in
                 self?.handleNextAction()
             }
@@ -66,7 +66,7 @@ class TopViewModel {
         case .loadPage(let before, let after, let limit):
             publisher = $models
                 .zip(next(before: before, after: after, limit: limit))
-                .map { $0 + $1 }
+                .map { (current, next) in current + next }
                 .eraseToAnyPublisher()
             
         case .reload:

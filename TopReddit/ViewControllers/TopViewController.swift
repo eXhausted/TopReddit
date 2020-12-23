@@ -27,8 +27,8 @@ class TopViewController: UIViewController {
                 let post = self.tableView
                     .visibleCells
                     .compactMap { $0 as? TopTableViewCell }
-                    .filter { $0.convert($0.bounds.origin, to: self.view).y > 0 }
-                    .compactMap { $0.viewModel}
+                    .filter { cell in cell.convert(cell.bounds.origin, to: self.view).y > 0 }
+                    .compactMap { $0.viewModel }
                     .map { $0.post }
                     .first
                 

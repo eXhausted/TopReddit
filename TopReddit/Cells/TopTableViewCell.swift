@@ -10,7 +10,7 @@ class TopTableViewCell: UITableViewCell {
             guard let viewModel = viewModel else { return }
             
             titleLabel?.text = viewModel.title
-            authorLabel?.text = "u/" + (viewModel.author ?? "")
+            authorLabel?.text = "u/" + viewModel.author
             numberOfCommentsLabel?.text = viewModel.numberOfComments
             
             viewModel
